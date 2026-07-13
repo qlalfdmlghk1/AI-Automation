@@ -13,10 +13,29 @@
 
 ## [Unreleased]
 
-> 아직 정식 릴리스 없음. **7월 1일 첫 정기 릴리스** 시 이 구역 전체를 `## [1.0.0] - 2026-07-01`로 cut하고 `git tag v1.0.0` + `rules/team.md` 헤더 버전을 일치시킵니다.
+_다음 릴리스에 들어갈 변경을 여기에 누적합니다._
+
+## [1.2.0] - 2026-07-14
+
+> 첫 정식 릴리스(태그). 그동안 태그 없이 누적된 표준 하네스 전체를 하나로 묶고, 배포 방식을 **`.claude/` 폴더 복사 → Claude Code 플러그인**으로 전환했습니다.
+>
+> `1.0.0`·`1.1.0`은 태그로 배포된 적이 없어 건너뜁니다 — `rules/team.md` 헤더가 이미 `v1.2.0`이라 **"CHANGELOG = git tag = team.md 헤더"** 규칙을 그 값에 맞춰 복원했습니다.
 
 ### Added
 
+- **플러그인 배포 전환** — `.claude-plugin/marketplace.json`·`plugin.json` 추가. 워크플로 스킬 12종을 **전역** 제공하며, MCP 서버(atlassian·figma)도 플러그인이 함께 제공(`mcpServers` → `.mcp.json`)
+
+  ```bash
+  claude plugin marketplace add qlalfdmlghk1/AI-Automation
+  claude plugin install ux-team-standard@ux-ai-automation
+  ```
+
+- `/team-init` — 스택을 감지해 `CLAUDE.md`·`rules/`·`settings.json`·`hooks/`·`project.config.md`를 프로젝트에 배치하고, 플러그인이 대체하는 프로젝트 사본(`skills/`·구버전 `commands/`)은 정리. **플러그인은 rules·CLAUDE.md를 배포할 수 없으므로 이 스킬이 유일한 공급 경로**
+- `/plan-review` — 기획 검수(정책 모순·미정의 케이스·흐름 누락 → 기획자 확인 질문 목록)
+- `/review-converge` — 리뷰 → 자동 반영 → 객관 검증(lint/type/test/build) → 재리뷰 자가수렴 루프
+- `rules/security-compliance.md` — ISMS-P·개인정보보호 체크리스트 (`/review` 보안 페르소나·`/secure-review`의 판정 정본)
+- `rules/native/android-convention.md`·`rules/native/ios-convention.md`·`rules/backend/nestjs.md` — 멀티스택 규칙(Android·iOS·NestJS)
+- `DOMAIN.md`(도메인 인덱스)·`domain/_TEMPLATE.md`(도메인 정의 양식) — 유비쿼터스 언어
 - 팀 Claude Code 표준 하네스 최초 셋업
   - `rules/team.md` — Team Claude 공통 작업 원칙
   - `rules/project.md`, `rules/api-guide-reference.md` — 프로젝트/도메인 규칙
@@ -34,6 +53,8 @@
 
 ### Changed
 
+- **⚠️ (호환성 주의) 배포 방식 전환: `.claude/` 폴더 복사 → 플러그인 설치 + `/team-init`.** 워크플로 스킬은 더 이상 프로젝트에 복사하지 않습니다(전역 제공). 프로젝트에는 `rules/`·`hooks/`·`CLAUDE.md`·`settings.json`·`project.config.md`만 `/team-init`이 배치합니다. **이 프로젝트를 받는 팀원은 플러그인 설치가 필수**입니다
+- **⚠️ (호환성 주의) 배포 소스를 사내 GitLab → GitHub(`qlalfdmlghk1/AI-Automation`)로 이전.** 마켓플레이스 등록 URL·README·CHANGELOG 링크가 GitHub 기준으로 변경됐고, 안정 채널 브랜치는 `master`입니다. (워크플로 자체는 여전히 GitLab 기반 — `glab`·MR·GitLab Issue)
 - **⚠️ (호환성 주의) MCP 설정을 `settings.json` → 프로젝트 스코프 `.mcp.json`으로 이전**, 도구명을 `mcp__atlassian__*`/`mcp__figma__*`로 통일. 기존 `mcp__claude_ai_*`·`_Rovo` 가정과 다르며, 적용 후 `/mcp` 인증 필요
 - `check-commit-typecheck` 훅: `type-check` 스크립트 없는 프로젝트는 통과하도록 보강(레거시/문서 repo 커밋 차단 해소), vue-tsc 특정 문구 제거
 - `secure-review`: Vue3/Pinia 하드코딩 → 스택 자동 감지 + 프레임워크 분기로 일반화
@@ -57,6 +78,10 @@
 
 ### Fixed
 
+- **`/team-init`이 `rules/security-compliance.md`를 배포하지 않던 문제** — 플러그인은 rules를 배포할 수 없는데 배포 목록에도 없어, 표준을 적용한 프로젝트에서 `/review`·`/secure-review`가 **ISMS-P 정본 없이 요약본만으로 판정**하며 조용히 degrade했습니다. 공통 배포 목록에 `security-compliance.md`·`api-guide-reference.md`를 추가하고, Stage 5에 존재 확인 점검을 강제했습니다
+- `plugin.json`에 `mcpServers` 키가 없어 "MCP 서버는 플러그인이 함께 제공"이라는 README 설명이 실제와 달랐던 문제 — `"mcpServers": "./.mcp.json"` 명시
+- `settings.example.json`: 신규 스킬 `plan-review`·`review-converge`가 `Skill()` 허용목록에 없어 매번 권한 프롬프트가 뜨던 문제 (`team-init`은 파일을 생성·삭제하므로 의도적으로 제외 — 프롬프트를 안전장치로 유지)
+- `rules/native/android-convention.md`: 보안 정본을 "ux-team-standard 플러그인 배포"로 잘못 안내하던 문구를 "`/team-init`이 프로젝트에 배치"로 정정
 - `settings.example.json`: 훅 `timeout` 단위 오류 수정 — `120000`(초 해석 시 33시간) → `300`초 (type-check가 긴 프로젝트에서 timeout으로 게이트가 무음 소멸하지 않도록 여유 포함)
 - `warn-changelog-on-mr` 훅: 대상 브랜치 추출값을 셸 보간하던 `execSync` → `execFileSync` 전환 (명령 주입 표면 제거)
 - `/commit` 9단계: 훅 활성 여부 판정 절차(settings.json PreToolUse 등록 확인) 추가 — 훅 미적용 환경에서 type-check 게이트가 무음 소멸하지 않도록 수동 fallback 명시
@@ -75,11 +100,14 @@
 - orphan 템플릿 `skills/start/templates/{plan-ui,plan-slim,progress}.md` (인라인 SSOT로 대체)
 - `note` skill의 미존재 `_templates/` 의존 및 rule 파일의 미존재 형제 파일 참조
 
+[Unreleased]: https://github.com/qlalfdmlghk1/AI-Automation/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/qlalfdmlghk1/AI-Automation/releases/tag/v1.2.0
+
 <!--
-7월 1일 첫 릴리스 cut 절차:
-1. 위 [Unreleased] → ## [1.0.0] - 2026-07-01 로 변경 (인용구 안내문 제거)
-2. git tag v1.0.0 + rules/team.md 헤더 버전 = 1.0.0 일치
-3. 아래 링크 추가:
-   [Unreleased]: https://dep.dawin.tv/adplatforms/ux-ai-automation/-/compare/v1.0.0...HEAD
-   [1.0.0]: https://dep.dawin.tv/adplatforms/ux-ai-automation/-/tags/v1.0.0
+릴리스 cut 절차:
+1. [Unreleased]의 내용을 ## [x.y.z] - YYYY-MM-DD 로 cut하고 빈 [Unreleased]를 남깁니다.
+2. 세 값을 항상 일치시킵니다: CHANGELOG 버전 = git tag(vX.Y.Z) = .claude/rules/team.md 헤더 버전
+   ※ 플러그인 배포이므로 .claude-plugin/plugin.json·marketplace.json의 version도 함께 맞춥니다.
+3. 위 링크 참조([Unreleased]/[x.y.z])를 새 버전 기준으로 갱신합니다.
+4. git tag vX.Y.Z && git push origin vX.Y.Z (안정 채널 = default branch `master`)
 -->

@@ -6,6 +6,7 @@
     "name": "UX플랫폼개발팀"
   },
   "keywords": ["workflow", "team-standard", "gitlab", "jira", "confluence"],
+  "mcpServers": "./.mcp.json",
   "skills": [
     "./.claude/skills/team-init",
     "./.claude/skills/start",

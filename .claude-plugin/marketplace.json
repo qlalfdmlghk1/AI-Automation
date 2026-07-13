@@ -4,7 +4,7 @@
     "name": "UX플랫폼개발팀"
   },
   "metadata": {
-    "description": "UX플랫폼개발팀 Claude Code 팀 표준 — 워크플로 스킬·룰·훅 배포 마켓플레이스 (사내 GitLab 레포를 source로 사용)",
+    "description": "UX플랫폼개발팀 Claude Code 팀 표준 — 워크플로 스킬·룰·훅 배포 마켓플레이스 (GitHub 레포를 source로 사용)",
     "version": "1.2.0"
   },
   "plugins": [

@@ -105,7 +105,9 @@ allowed-tools: Bash(git:*), Bash(which:*), Bash(node:*), Bash(cat:*), Bash(ls:*)
 
 Stage 1 결과를 바탕으로 **무엇을 깔지** 목록을 확정합니다.
 
-- 공통: `CLAUDE.md`, `rules/team.md`, `rules/project.md`, `settings.json`(example→실파일), `project.config.md`(example→실파일), `DOMAIN.md`(인덱스)·`domain/_TEMPLATE.md`(양식)
+- 공통: `CLAUDE.md`, `rules/team.md`, `rules/project.md`, `rules/security-compliance.md`, `rules/api-guide-reference.md`, `settings.json`(example→실파일), `project.config.md`(example→실파일), `DOMAIN.md`(인덱스)·`domain/_TEMPLATE.md`(양식)
+  - ⚠️ `rules/security-compliance.md`는 **반드시 포함**합니다. 플러그인은 rules를 배포할 수 없고, `/review`(보안 페르소나)·`/secure-review`는 이 파일을 **프로젝트의 `.claude/rules/`에서 읽어** ISMS-P 판정 정본으로 씁니다. 빠지면 보안 리뷰가 요약본만으로 판정하며 **조용히 degrade**합니다.
+  - `rules/api-guide-reference.md`는 `/e2e`가 참조합니다(프로젝트 BE API 가이드 경로).
   - 대상에 이미 `domain/{domain}.md` 정의 본문이 있으면 **건드리지 않음**(프로젝트 고유 지식). 인덱스(`DOMAIN.md`)가 이미 있으면 keep/merge로 처리.
 - 스택별: Stage 1에서 매핑된 rule 1개 — FE(`rules/fe/*`)·네이티브(`rules/native/*`)·백엔드(`rules/backend/*`) 중 감지된 것(또는 비-앱이면 생략). rule 본문이 아직 없는 스택이면 경로만 계획에 남기고 후속 스토리로 표시.
 - hooks: `check-commit-typecheck.js`, `notify-sensitive-edit.js` (프로젝트에서 실행되는 표준 훅)
@@ -124,6 +126,9 @@ Stage 1 결과를 바탕으로 **무엇을 깔지** 목록을 확정합니다.
 [신규 생성]
   .claude/CLAUDE.md
   .claude/rules/team.md
+  .claude/rules/project.md
+  .claude/rules/security-compliance.md          (보안 리뷰 정본 — 필수)
+  .claude/rules/api-guide-reference.md
   .claude/rules/{fe|native|backend}/{스택}.md   (감지된 스택 경로)
   .claude/settings.json           (settings.example.json 기반)
   .claude/project.config.md       (도출값 자동 채움 + 미정값 표시)
@@ -191,6 +196,7 @@ Stage 1 결과를 바탕으로 **무엇을 깔지** 목록을 확정합니다.
 - `CLAUDE.md`·`project.config.md`에 남은 `{PLACEHOLDER}`가 있는지 grep → 있으면 사용자에게 채우라고 안내.
 - `CLAUDE.md`가 참조하는 rule 경로(`.claude/rules/...`)가 **모두 실제로 존재**하는지 확인. (경로 표현이 여러 곳에 흩어져 있을 수 있으니 **모든 언급**을 검사 — 한 곳만 고치고 놓치는 실수 방지)
 - **Stage 2에서 적용하기로 한 rule 경로**도 실제로 존재하는지 확인 (CLAUDE.md 언급 여부와 무관). 감지표가 가리키는 rule 본문이 아직 없는 스택(예: `rules/native/*`·`rules/backend/nestjs.md` 미작성)이면 **신규 생성 실패를 조용히 넘기지 말고**, "rule 본문 미작성 → 후속 스토리, 이번엔 team.md만 적용(안전 degrade)"으로 사용자에게 명시합니다. (이 변경이 없애려는 "침묵 통과"를 스킬 레이어에서도 반복하지 않기 위함)
+- **보안 정본 존재 확인 (강제)** — `.claude/rules/security-compliance.md`가 대상 프로젝트에 실제로 있는지 확인합니다. 없으면 조용히 넘기지 말고 "보안 리뷰(`/review`·`/secure-review`)가 ISMS-P 정본 없이 동작하게 됨"을 경고하고 배치합니다. (플러그인은 rules를 배포하지 않으므로 이 스킬이 유일한 공급 경로입니다.)
 - hooks가 `settings.json`에 올바로 연결됐는지, typecheck 훅이 `TYPECHECK_COMMAND` 없을 때 skip되는지 확인.
 - 플러그인 미도입 프로젝트면 워크플로 스킬 사용 전제(플러그인 설치 또는 스킬 복사 여부)를 안내.
 - **정리한 경우** — 제거한 스킬·커맨드가 전역에서 호출되는지 최종 확인하고, "프로젝트에서 빠진 파일 목록(skills/commands 구분) + 이제 플러그인에서 제공됨"을 요약. 이 프로젝트를 받는 팀원은 **플러그인 설치가 필수**임을 명시.

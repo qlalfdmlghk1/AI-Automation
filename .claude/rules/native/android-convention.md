@@ -14,7 +14,7 @@ MVVM / MVC / MVP 아키텍처별 차이점을 구분하여 안내합니다.
 
 - 팀의 모든 Android 프로젝트 (Kotlin / Java)
 - 아키텍처(MVVM / MVP / MVC)·언어별 표기가 있는 항목은 해당 범위에만 적용
-- **보안 판정 기준의 정본**은 `security-compliance.md`(ux-team-standard 플러그인 배포)이며, 본 문서와 충돌 시 정본을 따릅니다 (14절 참고)
+- **보안 판정 기준의 정본**은 `.claude/rules/security-compliance.md`(`/team-init`이 프로젝트에 배치)이며, 본 문서와 충돌 시 정본을 따릅니다 (14절 참고)
 
 ---
 
@@ -1231,7 +1231,7 @@ public void login_withValidCredentials_shouldReturnSuccess() { /* ... */ }
 
 ## 14. 보안 (강제)
 
-> 보안 판정 기준의 **정본**은 `security-compliance.md`(ux-team-standard 플러그인 배포)입니다.
+> 보안 판정 기준의 **정본**은 `.claude/rules/security-compliance.md`(`/team-init`이 프로젝트에 배치)입니다.
 > 아래는 Android 필수 항목 요약이며, 본 문서와 충돌 시 정본을 따릅니다.
 
 - **민감정보 평문 저장 금지**: 토큰·비밀번호·개인정보는 `EncryptedSharedPreferences` / Android Keystore 사용 (9절 참고)
