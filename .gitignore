@@ -1,0 +1,14 @@
+# Claude Code 개인 전용 권한 (커밋/배포 제외)
+.claude/settings.local.json
+
+# 이 repo는 .claude 배포 소스 — repo 자신의 인스턴스 파일은 커밋하지 않는다
+# (일반 프로젝트는 settings.json / project.config.md를 커밋해서 팀과 공유하는 것이 표준)
+.claude/settings.json
+.claude/project.config.md
+
+# 파일럿 세션 측정 로그 (작성자 이름 포함 — 커밋하지 않음)
+docs/pilot-metrics/
+
+# OS
+.DS_Store
+Thumbs.db

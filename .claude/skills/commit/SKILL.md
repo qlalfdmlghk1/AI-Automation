@@ -1,6 +1,6 @@
 ---
 name: commit
-description: 변경 사항을 검토하고 커밋 컨벤션에 맞는 메시지를 생성하여 커밋합니다. TRIGGER when: 사용자가 "커밋", "commit", "커밋해줘", "변경사항 커밋", "커밋 메시지 작성" 등 커밋 관련 요청을 할 때. DO NOT TRIGGER when: 단순 git 상태 확인, diff 조회, 브랜치 관련 작업.
+description: 변경 사항을 검토하고 커밋 컨벤션에 맞는 메시지를 생성하여 커밋합니다. TRIGGER when 사용자가 "커밋", "commit", "커밋해줘", "변경사항 커밋", "커밋 메시지 작성" 등 커밋 관련 요청을 할 때. DO NOT TRIGGER when 단순 git 상태 확인, diff 조회, 브랜치 관련 작업.
 ---
 
 현재 변경 사항을 커밋하세요.
@@ -162,52 +162,13 @@ docs/features/{기능명}/troubleshoot.md 에 기록할까요?
 "네"를 선택하면 `/note` 커맨드 로직으로 문서에 내용을 추가합니다.
 기능명은 `current_branch`에서 자동 추출하고, 추출 실패 시 사용자에게 확인합니다.
 
-### 9단계: 타입 체크 게이트 (훅 위임)
+이 단계에서 작성·갱신된 문서(troubleshoot.md/tech.md)는 9단계에서 스테이징되어 **이번 커밋에 함께 포함**됩니다.
 
-커밋 직전 type-check는 **PreToolUse 훅(`check-commit-typecheck.js`)이 `git commit` 실행 시 자동으로 수행**합니다.
-스킬에서 별도로 `npm run type-check`를 실행하지 **않습니다** — 같은 검사가 두 번 돌아 커밋마다 30~60초가 낭비되기 때문입니다.
+### 9단계: progress.md 커밋 로그 업데이트 및 문서 스테이징
 
-- **훅 통과 시**: 커밋이 그대로 진행됩니다 (10단계).
-- **훅 실패 시 (exit 2)**: 커밋이 차단됩니다. 자동으로 코드를 수정하지 않고, 어떤 파일/라인에서 어떤 타입 에러가 발생했는지 요약 후 사용자 결정을 받습니다.
-- **훅 활성 여부 판정 (커밋 전 1회)**: `.claude/settings.json`(없으면 `settings.local.json`)의 `hooks.PreToolUse`에 `check-commit-typecheck.js`가 등록돼 있는지 확인합니다. **미등록이면** package.json에 `type-check` 스크립트가 있는 프로젝트에 한해 수동으로 `npm run type-check`를 실행한 뒤 커밋합니다 (스크립트가 없는 레거시/문서 repo는 건너뜀).
+커밋 실행 **전에** `docs/features/{기능명}/progress.md`에 이번 커밋 내용을 append하고, 갱신 문서를 스테이징해 **같은 커밋에 포함**시킵니다.
 
-```
-❌ type-check 실패 — 커밋 중단
-
-<에러 요약: 파일:라인 + 핵심 메시지>
-
-수정 방법:
-1. 제가 수정 시도
-2. 직접 수정 후 다시 커밋
-3. 그래도 강행 (훅 비활성 환경 한정 — 훅 활성 시 커밋이 차단되어 불가, 권장하지 않음)
-```
-
-> ESLint 는 type-aware rule 만 검사하기 때문에 Vue 템플릿의 `@update:model-value` 같은 emit 시그니처 mismatch 를 못 잡습니다. `vue-tsc` 기반 type-check 가 그 빈틈을 메웁니다.
-
-### 10단계: 커밋 실행
-
-사용자 확인 후 커밋을 실행합니다:
-
-```bash
-git commit -m "Feat:#23 로그인 페이지 구현
-
-SSO SDK 기반 로그인 폼 구현.
-
-Refs #23
-Jira: UX-12"
-```
-
-완료 후:
-
-```
-✅ 커밋 완료
-- 해시: [commit hash]
-- 메시지: Feat:#23 로그인 페이지 구현
-```
-
-### 11단계: progress.md 커밋 로그 업데이트
-
-커밋 완료 후 `docs/features/{기능명}/progress.md`에 이번 커밋 내용을 append합니다.
+> 커밋 후에 갱신하면 갱신본이 방금 커밋에서 빠져, progress.md만 따로 커밋·푸시하는 수동 작업이 반복됩니다. 그래서 순서를 "기록 → 커밋"으로 둡니다.
 
 기능명은 현재 브랜치에서 추출합니다.
 
@@ -220,7 +181,6 @@ Jira: UX-12"
 ```markdown
 ### Commit — YYYY-MM-DD HH:mm
 
-- Hash: `<commit hash>`
 - Message: `Feat:#23 로그인 페이지 구현`
 - Issue: `#23`
 - Jira: `UX-12`
@@ -241,13 +201,76 @@ Jira: UX-12"
 작성 규칙:
 
 - 단순 파일 변경 목록을 그대로 붙이지 말고, 다음 세션이 맥락을 복구할 수 있는 수준으로 요약합니다.
-- “결정 로그”에는 커밋 과정에서 확정된 선택만 남깁니다.
+- "결정 로그"에는 커밋 과정에서 확정된 선택만 남깁니다.
 - 결정이 없으면 `- 특이 결정 없음`으로 명시합니다.
 - 다음 작업이 없으면 `- 없음`으로 명시합니다.
+- **커밋 해시는 기록하지 않습니다** — 커밋 전에는 해시를 알 수 없고, 이 항목이 실리는 커밋 자체가 식별자입니다. 필요 시 메시지·이슈 번호로 `git log --grep` 조회가 가능합니다. (기존 항목에 남아 있는 `Hash` 줄은 마이그레이션하지 않고 그대로 둡니다)
+
+**문서 스테이징 (강제):** 이번 단계와 8단계에서 스킬이 **직접 갱신·생성한 파일만** 명시적으로 add합니다. 실제로 갱신·생성한 파일이 있을 때만 해당하며, progress.md 작성을 건너뛴 경우 그 파일의 add도 생략합니다.
+
+아래 예시에서 **실제 기록한 파일의 줄만** 실행합니다 (기록하지 않은 파일에 add를 실행하면 pathspec 에러):
+
+```bash
+git add docs/features/{기능명}/progress.md        # 이 단계에서 작성한 경우만
+git add docs/features/{기능명}/troubleshoot.md    # 8단계에서 troubleshoot.md를 기록한 경우만
+git add docs/features/{기능명}/tech.md            # 8단계에서 tech.md를 기록한 경우만
+```
+
+- `git add docs/features/{기능명}/` 같은 **폴더 단위 add 금지** — 사용자가 작성 중이던 다른 문서가 의도치 않게 커밋에 딸려 들어갈 수 있습니다.
+
+**커밋이 차단·취소된 경우:** 이미 갱신한 progress.md는 되돌리지 않고 유지합니다. 게이트 실패 등으로 코드를 수정한 뒤 재커밋할 때는, 직전에 작성한 progress 항목의 "변경 요약"이 실제 커밋 내용과 여전히 일치하는지 확인하고 필요하면 수정합니다. 이때 새 항목을 append하지 않고 **직전 항목을 수정**합니다(같은 커밋에 항목이 중복으로 쌓이는 것 방지). 커밋 메시지가 바뀌었으면 `Message` 줄과 항목 제목의 타임스탬프도 함께 갱신하고, 수정한 파일은 **다시 `git add`** 한 뒤 재커밋합니다.
+
+- "직전 항목 수정"은 그 항목이 **아직 커밋되지 않은 상태일 때만** 적용합니다 — 세션 기억이 아니라 파일 상태로 판별 (`git diff HEAD -- docs/features/{기능명}/progress.md`에 해당 항목이 나타나면 미커밋). 이미 커밋된 항목은 수정하지 않고 새 항목을 append합니다.
+
+완료 후 (**실제로 갱신·스테이징한 파일만 나열** — 전부 건너뛴 경우 이 안내 생략):
+
+```
+📈 progress.md 업데이트 + 스테이징 완료
+→ docs/features/{기능명}/progress.md (해당 시 troubleshoot.md/tech.md 포함)
+```
+
+### 10단계: 타입 체크 게이트 (훅 위임)
+
+커밋 직전 type-check는 **PreToolUse 훅(`check-commit-typecheck.js`)이 `git commit` 실행 시 자동으로 수행**합니다.
+스킬에서 별도로 `npm run type-check`를 실행하지 **않습니다** — 같은 검사가 두 번 돌아 커밋마다 30~60초가 낭비되기 때문입니다.
+
+- **훅 통과 시**: 커밋이 그대로 진행됩니다 (11단계).
+- **훅 실패 시 (exit 2)**: 커밋이 차단됩니다. 자동으로 코드를 수정하지 않고, 어떤 파일/라인에서 어떤 타입 에러가 발생했는지 요약 후 사용자 결정을 받습니다.
+- **훅 활성 여부 판정 (커밋 전 1회)**: `.claude/settings.json`(없으면 `settings.local.json`)의 `hooks.PreToolUse`에 `check-commit-typecheck.js`가 등록돼 있는지 확인합니다. **미등록이면** package.json에 `type-check` 스크립트가 있는 프로젝트에 한해 수동으로 `npm run type-check`를 실행한 뒤 커밋합니다 (스크립트가 없는 레거시/문서 repo는 건너뜀).
+
+```
+❌ type-check 실패 — 커밋 중단
+
+<에러 요약: 파일:라인 + 핵심 메시지>
+
+수정 방법:
+1. 제가 수정 시도
+2. 직접 수정 후 다시 커밋
+3. 그래도 강행 (훅 비활성 환경 한정 — 훅 활성 시 커밋이 차단되어 불가, 권장하지 않음)
+```
+
+> ESLint 는 type-aware rule 만 검사하기 때문에 Vue 템플릿의 `@update:model-value` 같은 emit 시그니처 mismatch 를 못 잡습니다. `vue-tsc` 기반 type-check 가 그 빈틈을 메웁니다.
+
+### 11단계: 커밋 실행
+
+사용자 확인 후 커밋을 실행합니다:
+
+```bash
+git commit -m "Feat:#23 로그인 페이지 구현
+
+SSO SDK 기반 로그인 폼 구현.
+
+Refs #23
+Jira: UX-12"
+```
 
 완료 후:
 
 ```
-📈 progress.md 업데이트 완료
-→ docs/features/{기능명}/progress.md
+✅ 커밋 완료
+- 해시: [commit hash]
+- 메시지: Feat:#23 로그인 페이지 구현
+- 포함 문서: {9단계에서 실제 스테이징된 문서 나열 — 예: progress.md, troubleshoot.md. 없으면 이 줄 생략}
 ```
+
+커밋 후 progress.md를 다시 갱신하지 않습니다 — 이번 커밋 기록은 9단계에서 이미 커밋에 포함됐습니다.

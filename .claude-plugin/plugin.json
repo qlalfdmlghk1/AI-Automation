@@ -1,0 +1,23 @@
+{
+  "name": "ux-team-standard",
+  "description": "UX플랫폼개발팀 Claude Code 워크플로 표준 스킬 묶음",
+  "version": "1.2.0",
+  "author": {
+    "name": "UX플랫폼개발팀"
+  },
+  "keywords": ["workflow", "team-standard", "gitlab", "jira", "confluence"],
+  "skills": [
+    "./.claude/skills/team-init",
+    "./.claude/skills/start",
+    "./.claude/skills/plan-review",
+    "./.claude/skills/commit",
+    "./.claude/skills/note",
+    "./.claude/skills/mr",
+    "./.claude/skills/review",
+    "./.claude/skills/review-converge",
+    "./.claude/skills/secure-review",
+    "./.claude/skills/tech-doc",
+    "./.claude/skills/organize-imports",
+    "./.claude/skills/e2e"
+  ]
+}

@@ -7,7 +7,7 @@
  * 이 4개는 progress.md + git 에서 나오므로 "작업 repo"에서 돌려야 한다.
  *
  *   지표 1  progress.md 생존율  = 결정 로그 2건 이상인 폴더 / 전체 폴더
- *   지표 2  /commit 자동 기록률 = (Feat/Fix/Refactor 커밋 중 progress.md에 해시 등장) / 전체
+ *   지표 2  /commit 자동 기록률 = (Feat/Fix/Refactor 커밋 중 progress.md 동봉 또는 해시 등장) / 전체
  *   지표 3  /note 수동 기록 건수 = progress.md 의 시·분 없는 날짜 줄 수
  *   지표 4  /start 채택률(보조)  = /start 생성 폴더 / 기간 내 새 작업 브랜치  (근사값)
  *
@@ -147,32 +147,43 @@ function collectDocMetrics() {
 }
 
 // ── 지표 2 : /commit 자동 기록률 ──────────────────────────────────────
+// 판정 계약(v1.2.0+): /commit 신 9단계는 progress.md 기록을 커밋 전에 작성해 같은
+// 커밋에 포함하므로 "커밋이 docs/features/*/progress.md 를 건드렸는가"로 판정한다.
+// 구 플로우(커밋 후 기록 + Hash 필드)로 남은 과거 항목은 해시 토큰 매칭으로 호환 유지.
 const COMMIT_PREFIX_RE = /^(feat|fix|refactor)(?![a-z])/i; // feature/fixture 오탐 방지
+const PROGRESS_PATH_RE = /^docs\/features\/[^/]+\/progress\.md$/;
 function collectCommitRate(period, progressText) {
   const sinceFlag = period.since ? ` --since="${period.since}"` : "";
   const untilFlag = period.until ? ` --until="${period.until}"` : "";
   let raw = "";
   try {
-    raw = git(`log${sinceFlag}${untilFlag} --no-merges --format=%H%x09%s`);
+    // %x01 구분자 + --name-only 로 커밋별 변경 파일 목록까지 한 번에 수집
+    raw = git(`log${sinceFlag}${untilFlag} --no-merges --name-only --format=%x01%H%x09%s`);
   } catch {
     return { measurable: false };
   }
   const commits = raw
-    ? raw.split("\n").map((l) => {
-        const [hash, ...rest] = l.split("\t");
-        return { hash, subject: rest.join("\t") };
-      })
+    ? raw
+        .split("\u0001")
+        .filter((block) => block.trim())
+        .map((block) => {
+          const lines = block.split("\n").filter((l) => l.trim());
+          const [hash, ...rest] = lines[0].split("\t");
+          return { hash, subject: rest.join("\t"), files: lines.slice(1) };
+        })
     : [];
   const meaningful = commits.filter((c) => COMMIT_PREFIX_RE.test(c.subject.trim()));
 
-  // progress.md 에 등장하는 해시 토큰(7~40자 hex) 집합
+  // 레거시 호환: progress.md 에 등장하는 해시 토큰(7~40자 hex) 집합
   const tokens = new Set();
   for (const m of progressText.matchAll(/\b([0-9a-f]{7,40})\b/g)) tokens.add(m[1]);
 
   const missing = [];
   let b = 0;
   for (const c of meaningful) {
-    const found = [...tokens].some((t) => c.hash.startsWith(t));
+    const found =
+      c.files.some((f) => PROGRESS_PATH_RE.test(f)) || // 신 플로우: 기록이 커밋에 동봉
+      [...tokens].some((t) => c.hash.startsWith(t)); // 구 플로우: Hash 필드 매칭
     if (found) b += 1;
     else missing.push(`${c.hash.slice(0, 8)} ${c.subject}`);
   }

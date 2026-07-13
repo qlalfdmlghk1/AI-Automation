@@ -2,6 +2,9 @@
 /**
  * PreToolUse hook: tests/e2e/** 작성 시 안티패턴 경고 (차단 X, 통과 O).
  *
+ * ⚠️ 웹(Playwright) 전용 — 경로(tests/e2e/) + Playwright 패턴(.waitForTimeout/.locator)에만
+ *    매칭되므로 네이티브(Espresso/XCUITest)·서버(supertest) 스택에서는 자연히 무동작(no-op)한다.
+ *
  * E2E 안티패턴 후보를 stderr 경고로 띄운다 (block 아님 — 저작 흐름 방해 X).
  *   - page.waitForTimeout(...)      : 고정 대기 → web-first assertion 으로 대체
  *   - page.locator('<CSS/XPath>')   : 구조 의존 셀렉터 → getByRole/Label/Text/TestId

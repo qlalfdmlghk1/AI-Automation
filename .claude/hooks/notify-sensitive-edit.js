@@ -45,6 +45,13 @@ const sensitivePatterns = [
   { test: () => /\.pem$/i.test(basename), label: '*.pem' },
   { test: () => /\.key$/i.test(basename), label: '*.key' },
   { test: () => /credentials?/i.test(basename), label: 'credential' },
+  // 네이티브(Android·iOS) 키·서명·인증서
+  { test: () => /\.jks$/i.test(basename), label: '*.jks (Android keystore)' },
+  { test: () => /\.keystore$/i.test(basename), label: '*.keystore' },
+  { test: () => /\.mobileprovision$/i.test(basename), label: '*.mobileprovision' },
+  { test: () => /\.p12$/i.test(basename), label: '*.p12' },
+  { test: () => /\.p8$/i.test(basename), label: '*.p8' },
+  { test: () => /^GoogleService-Info\.plist$/i.test(basename), label: 'GoogleService-Info.plist' },
 ]
 
 const matched = sensitivePatterns.find((p) => p.test())

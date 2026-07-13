@@ -8,6 +8,8 @@ argument-hint: '<file-path>'
 
 대상 파일: $ARGUMENTS
 
+> **적용 대상: JS/TS 프론트엔드(+Node) 전용.** Vue `.vue`·auto-import·FSD를 전제로 하므로 Android(Kotlin/Java)·iOS(Swift)·백엔드(NestJS) 스택에서는 실행하지 않습니다 — 이들은 IDE·ktlint·SwiftFormat·ESLint 등 스택별 도구가 import 정리를 처리합니다.
+
 ## 정리 규칙
 
 ### 1. 미사용 import 제거

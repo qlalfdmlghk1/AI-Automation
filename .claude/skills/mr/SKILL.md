@@ -1,6 +1,6 @@
 ---
 name: mr
-description: GitLab MR 생성 — glab으로 직접 생성, 미설치 시 설치 권유 → docs/mr/*.md 저장
+description: GitLab MR(Merge Request) 생성 — glab으로 직접 생성, 미설치 시 설치 권유 → docs/mr/*.md 저장. TRIGGER when 사용자가 "MR", "머지리퀘스트", "MR 생성/올려줘/만들어줘", "merge request", "PR 올려줘" 등 MR 관련 요청을 할 때. DO NOT TRIGGER when 단순 git push, 브랜치 확인.
 argument-hint: '[제목 힌트] (optional)'
 ---
 
@@ -156,21 +156,28 @@ glab을 설치하면 MR을 자동으로 생성할 수 있습니다.
 ### 5단계: 리뷰 실행 (Agent 툴 기반 페르소나 병렬)
 
 MR이 생성된 상태이므로 리뷰 결과를 `glab mr note`로 바로 코멘트 등록할 수 있습니다.
-MR 생성 완료 후 **반드시** 리뷰를 진행합니다:
+MR 생성 완료 후 **반드시** 리뷰를 진행합니다. **표준 권장은 `/review-converge`(리뷰 수렴)** 입니다 — 객관 검증(lint/type/test/build) 통과까지 AI가 먼저 수렴시키고 사람은 마지막에 확인합니다:
 
 ```
 ✅ MR 생성 완료: [MR URL]
 
 📋 리뷰를 진행할까요? (MR 코멘트에 자동 등록됩니다)
-1. 코드 리뷰 실행 (/review) — 시니어 / 보안 / 아키텍트 / QA 4명 페르소나 병렬 리뷰
-2. 건너뛰기 (이미 완료한 경우)
+1. 코드 리뷰 수렴 실행 (/review-converge origin/<대상브랜치>...HEAD) — ⭐ 표준 권장
+   리뷰 → 자동 반영(Blocker·보안·검증실패·명백한 오류만) → 검증 → 재리뷰를 수렴까지 반복
+2. 단순 리뷰만 실행 (/review origin/<대상브랜치>...HEAD) — 1회성 리뷰/수동 확인용
+3. 건너뛰기 (이미 완료한 경우)
 ```
 
-`review` skill 호출 시 **리뷰 범위를 명시적으로 패스**합니다 (`/mr` 컨텍스트에서는 항상 origin/대상브랜치 비교가 정답):
+> **상용 반영(`[상용반영]`) 또는 Hotfix에서는 `/review-converge`를 강하게 권장**합니다. 운영에 바로 나가는 변경은 객관 검증(lint/type/test/build)이 통과한 상태로 사람에게 올라와야 합니다. 단순 `/review`만으로 상용/Hotfix를 넘기지 마세요 (위 "치명 이슈" — 테스트 근거 없이 상용 반영 금지와 연결).
+
+두 skill 모두 호출 시 **리뷰 범위를 명시적으로 패스**합니다 (`/mr` 컨텍스트에서는 항상 origin/대상브랜치 비교가 정답):
 
 ```
-/review origin/<대상브랜치>...HEAD
+/review-converge origin/<대상브랜치>...HEAD   # 표준 권장 (수렴 루프)
+/review origin/<대상브랜치>...HEAD            # 1회성 리뷰만
 ```
+
+> `/review-converge`는 내부적으로 매 라운드 `/review`(4 페르소나 합성)를 재사용하므로 리뷰 품질은 동일하고, 거기에 자동 반영 + 객관 검증 + 최대 회차 수렴이 더해집니다. 회차 안에 수렴 못 하면 그 자체가 "사람이 깊게 봐야 하는 신호"로 보고됩니다.
 
 > 명시 패스를 안 하면 review의 우선순위 기본값(working/staged 우선)이 적용돼 우연히 남은 dirty change가 잘못 잡힐 수 있음.
 
@@ -188,4 +195,38 @@ Blocker: N건
 
 Blocker가 있으면 수정 후 재커밋하고 리뷰를 재실행하세요.
 없으면 `DEFAULT_REVIEWER`에게 MR 요청하세요.
+```
+
+### 6단계: 리뷰 후 Jira·GitLab 이슈 동기화 (필수)
+
+MR 생성·리뷰까지 끝났으면, `/start`에서 만들어 둔 **Jira 티켓과 GitLab 이슈를 현재 진척에 맞게 갱신**합니다. 생성만 해두고 방치하면 이슈 보드가 실제 상태와 어긋납니다.
+
+> 이 단계는 **`/mr` 워크플로에서만** 수행합니다. 스탠드얼론 `/review`나 `/review-converge` 내부 라운드에서는 이슈를 건드리지 않습니다(중간 상태로 보드가 흔들리는 것 방지).
+>
+> 🚨 Jira는 **Atlassian MCP**로 처리합니다(`glab`은 GitLab 전용). cloudId는 `getAccessibleAtlassianResources`로 1회 조회 후 재사용.
+
+**6-1. Jira 상태 전이**
+
+1. Jira 키는 1단계에서 받은 Jira 티켓 URL(또는 GitLab 이슈 본문의 Jira 링크)에서 추출합니다.
+2. `getTransitionsForJiraIssue`로 **현재 가능한 전이 목록을 런타임 조회**합니다 (전이 ID는 프로젝트마다 다름 — 하드코딩 금지).
+3. 목표 상태는 `.claude/project.config.md`의 `JIRA_REVIEW_TRANSITION`(있으면)을 1순위로 매칭합니다. 없으면 조회된 목록에서 "진행 중 / In Progress / In Review / 리뷰" 류를 후보로 잡아 `AskUserQuestion` 카드로 한 번 확인합니다.
+4. `transitionJiraIssue`로 전이합니다. 이미 목표 상태면 건너뜁니다. 전이 실패(권한·워크플로 제약) 시 사용자에게 수동 처리 안내(다음 단계는 계속).
+
+**6-2. 작업 항목 체크 동기화**
+
+이번 MR로 완료된 In Scope 항목을 Jira·GitLab 이슈 본문의 체크박스에 반영합니다 (`- [ ]` → `- [x]`).
+
+- **GitLab 이슈**: `glab issue view <이슈번호>`로 본문을 받아 "작업 항목"의 완료 항목을 `- [x]`로 바꿔 `glab issue update <이슈번호> --description "..."`로 갱신.
+- **Jira**: `getJiraIssue`(`contentFormat:"markdown"`)로 description을 받아 "작업 항목" 체크박스를 동일하게 갱신 후 `editJiraIssue`(`contentFormat:"markdown"`)로 PUT. (전체 치환이므로 받은 본문을 보존한 채 체크 상태만 변경)
+- 완료 여부가 불명확한 항목은 **체크하지 않고** 그대로 둡니다(임의 완료 처리 금지). 어떤 항목을 완료로 볼지 애매하면 사용자에게 한 번 확인합니다.
+
+> GitLab 이슈 **종료는 하지 않습니다** — MR 본문의 `Closes #N`이 머지 시 자동 종료하므로, 여기서 수동 close 하면 중복/조기 종료가 됩니다.
+
+**6-3. 결과 안내**
+
+```
+🔄 이슈 동기화 완료
+- Jira {KEY}: {이전상태} → {새상태}
+- 작업 항목 체크: Jira {n}건 / GitLab {m}건 반영
+- GitLab 이슈 #{번호}: 작업 항목 갱신 (종료는 머지 시 자동)
 ```

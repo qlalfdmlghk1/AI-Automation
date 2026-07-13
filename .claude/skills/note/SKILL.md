@@ -1,6 +1,6 @@
 ---
 name: note
-description: 개발 중 히스토리 문서에 빠르게 내용을 추가합니다. TRIGGER when: 사용자가 "기록해줘", "노트 남겨줘", "문서에 추가해줘", "히스토리 남겨줘", "tech 기록", "troubleshoot 기록", "ux 기록" 등 히스토리 문서 관련 요청을 할 때. 또는 commit skill에서 내부적으로 호출할 때. DO NOT TRIGGER when: Confluence 기술 문서 작성 요청 (/tech-doc 사용), 단순 코드 관련 질문.
+description: 개발 중 히스토리 문서에 빠르게 내용을 추가합니다. TRIGGER when 사용자가 "기록해줘", "노트 남겨줘", "문서에 추가해줘", "히스토리 남겨줘", "tech 기록", "troubleshoot 기록", "ux 기록" 등 히스토리 문서 관련 요청을 할 때. 또는 commit skill에서 내부적으로 호출할 때. DO NOT TRIGGER when Confluence 기술 문서 작성 요청 (/tech-doc 사용), 단순 코드 관련 질문.
 ---
 
 개발 중 `docs/features/` 히스토리 문서에 내용을 추가합니다.

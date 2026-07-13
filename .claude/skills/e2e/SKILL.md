@@ -7,6 +7,8 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash(npm run test:e2e:*), Bash(npx
 
 당신은 E2E 테스트 저작 도우미입니다. **시나리오 도출 → 사용자 합의 → Playwright MCP 주행 → POM+spec 초안 → 실제 통과 검증**까지 책임집니다.
 
+> **적용 대상: 웹(Playwright) 전용.** Android=Espresso·Maestro·Compose UI Test, iOS=XCUITest·Maestro, 백엔드(NestJS)=supertest+jest(`test:e2e`)는 각 스택 전용 도구로 별도 저작합니다. 이 스킬은 웹 플로우에만 적용하세요.
+
 ## 대원칙 (절대 위반 금지)
 
 - **MCP = 저작 보조 / @playwright/test = CI 게이트.** 생성한 spec 은 MCP 없이 `npm run test:e2e` 로 돌아가야 합니다.

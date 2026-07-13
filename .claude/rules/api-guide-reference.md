@@ -1,15 +1,18 @@
 ---
 paths:
-  - 'src/features/**'
-  - 'src/entities/**'
-  - 'src/app/mocks/**'
-  - 'src/pages/**'
+  - 'src/features/**' # FE(FSD)
+  - 'src/entities/**' # FE(FSD)
+  - 'src/app/mocks/**' # FE(FSD)
+  - 'src/pages/**' # FE(FSD)
+  - 'src/modules/**' # 백엔드(NestJS)
+  - 'app/src/main/**' # Android
+  - 'Sources/**' # iOS(SPM) — 프로젝트 레이아웃에 따라 상이
   - 'docs/features/**/api-mapping.md'
 ---
 
 # API Guide 참조 규칙
 
-페이지나 기능 개발을 시작할 때 프로젝트의 API 가이드 문서를 먼저 확인합니다.
+화면(페이지·네이티브 스크린)이나 엔드포인트/기능 개발을 시작할 때 프로젝트의 API 가이드 문서를 먼저 확인합니다. (경로는 스택별 — 위 frontmatter 참조. FE는 FSD, 백엔드는 `src/modules`, Android는 `app/src/main`, iOS는 SPM `Sources` 등 프로젝트 구조에 맞춰 적용.)
 
 API 가이드 위치는 `.claude/project.config.md`의 `API_GUIDE_PATH` 값을 따릅니다.
 

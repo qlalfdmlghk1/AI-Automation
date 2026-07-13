@@ -185,6 +185,12 @@ find src -type f \( -name "*.ts" -o -name "*.js" -o -name "*.vue" -o -name "*.ts
 | Figma 디자인 시안 | (선택) |
 ```
 
+> 🔗 **링크 작성 규칙 (필수 — 링크 누락 방지)**: 링크 셀에 **URL 평문만** 넣지 말고 반드시 **클릭 가능한 형태**로 작성합니다.
+>
+> - 본문/표 모두 실제 링크로: `[DEV-202](https://.../browse/DEV-202)` 또는 발행 포맷이 HTML이면 `<a href="https://...">DEV-202</a>`.
+> - Jira/GitLab/Confluence처럼 미리보기가 유용한 링크는 **스마트 링크**로: `<a href="URL" data-card-appearance="inline">DEV-202</a>` (HTML 발행 시).
+> - 표 셀 안에서는 바ﾚ URL이 자동 링크되지 않는 경우가 있으므로 **반드시 앵커/마크다운 링크 문법**을 씁니다. `(필수)`·`확인 필요:` 같은 플레이스홀더가 그대로 발행되지 않도록 발행 전 실제 URL로 치환합니다.
+
 ---
 
 ### 5단계: 사용자 확인
@@ -208,6 +214,11 @@ find src -type f \( -name "*.ts" -o -name "*.js" -o -name "*.vue" -o -name "*.ts
 **Confluence API 직접 발행 시도:**
 
 `CONFLUENCE_SPACE` > 기능 기술 문서 (`TECH_DOC_PARENT_PAGE_ID`) 하위에 발행합니다.
+
+> 📌 **발행 포맷 = `contentFormat: "html"` 권장.** `createConfluencePage`에 HTML로 보내면 링크(`<a href>`)·스마트 링크·표·패널이 안정적으로 렌더됩니다. markdown으로 보낼 때 표 셀 내 링크가 평문으로 굳어지는 문제를 피할 수 있습니다.
+>
+> - 모든 URL은 `<a href="URL">텍스트</a>`(또는 스마트 링크 `data-card-appearance="inline"`)로 변환해 보냅니다. 바ﾚ URL·플레이스홀더(`(필수)` 등)가 남지 않게 합니다.
+> - **발행 후 검증**: 반환된 페이지를 `getConfluencePage`(또는 웹 URL)로 열어 "관련 링크" 표의 Jira/GitLab/MR 링크가 실제 클릭 가능한지 확인합니다. 평문으로 굳었으면 `updateConfluencePage`로 앵커 형태로 교정합니다.
 
 성공 시:
 

@@ -27,7 +27,7 @@
 - 의미 있는 변경은 Plan → Code → Review 순서로 진행합니다.
 - `/start`를 사용하면 plan.md 합의 후 Jira, GitLab Issue, branch, progress.md를 생성합니다.
 - 개발 중 결정은 `progress.md` 또는 `/note`로 남깁니다.
-- 커밋은 `/commit`, MR은 `/mr`, 리뷰는 `/review` 흐름을 우선 사용합니다.
+- **커밋·MR·리뷰·기록 요청은 반드시 해당 스킬로 처리합니다.** 사용자가 "커밋해줘"·"MR 올려줘"·"리뷰해줘"·"기록해줘"처럼 자연어로 말해도 — 슬래시 커맨드가 아니어도 — `git commit`·`glab mr create` 등을 **직접 실행하지 말고** `/commit`·`/mr`·`/review`(또는 `/review-converge`)·`/note` 스킬을 호출합니다. 스킬이 커밋 컨벤션·이슈 연결·리뷰 등록 등 팀 표준 절차를 보장하므로, 직접 처리하면 그 절차가 누락됩니다.
 - 프로젝트별 예외는 `.claude/project.config.md`에 명시하고, skill 본문을 직접 고치기 전에 팀 표준 반영 여부를 검토합니다.
 
 ## 필수 사전 준비
@@ -46,6 +46,15 @@
 - Vue2 / JavaScript: `.claude/rules/fe/vue2-javascript.md`
 - Node / AngularJS 등 레거시: `.claude/rules/fe/angularjs-legacy.md`
 - 디자인 시스템 / 퍼블리싱: `.claude/rules/fe/publishing-design-system.md`
+- Android (Kotlin/Java): `.claude/rules/native/android-convention.md`
+- iOS (Swift): `.claude/rules/native/ios-convention.md`
+- 백엔드 (NestJS): `.claude/rules/backend/nestjs.md`
+
+## 도메인 언어
+
+프로젝트 유비쿼터스 언어는 `.claude/DOMAIN.md`(인덱스)와 `.claude/domain/{domain}.md`(정의 본문)에 둡니다.
+
+해당 도메인 작업(코드·주석·테스트 제목·커밋·UI 문구) 시 관련 도메인 파일을 먼저 읽고 용어를 따릅니다. 새 도메인은 `.claude/domain/_TEMPLATE.md`를 복사해 작성합니다.
 
 ## 진행 문서
 
