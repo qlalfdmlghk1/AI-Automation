@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 현재 브랜치명에서 GitLab 이슈 번호를 추출합니다.
+# 현재 브랜치명에서 GitHub 이슈 번호를 추출합니다.
 # 브랜치명 형식: {prefix}/{이슈번호}-{설명}
 # 예: feature/23-login-page → 23
 #     fix/45-token-error    → 45

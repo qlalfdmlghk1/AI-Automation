@@ -1,6 +1,6 @@
 ---
 name: team-init
-description: 팀 표준 .claude 적용기 — 프로젝트 스택을 감지해 알맞은 rules·CLAUDE.md·settings·hooks·project.config를 프로젝트에 깔고 고유값을 채운다. 기존에 표준 자산이 로컬에 있으면, 전역(플러그인)이 실제 제공하는 것에 한해 프로젝트 사본을 정리(삭제)한다. 워크플로 스킬(/start·/commit·/mr·/review 등)은 플러그인으로 배포되므로 이 스킬은 "프로젝트마다 달라지는 파일 + 정리"를 담당한다. TRIGGER when 사용자가 "/team-init" 호출 또는 "팀 표준 적용", "claude 셋업", "이 프로젝트에 표준 깔아줘", "claude 설정 정리"를 요청할 때. DO NOT TRIGGER 자동 실행 금지 — 파일을 생성/삭제하므로 반드시 사용자가 직접 호출할 때만.
+description: 팀 표준 .claude 적용기 — 프로젝트 스택을 감지해 알맞은 rules·CLAUDE.md·settings·hooks·project.config를 프로젝트에 깔고 고유값을 채운다. 기존에 표준 자산이 로컬에 있으면, 전역(플러그인)이 실제 제공하는 것에 한해 프로젝트 사본을 정리(삭제)한다. 워크플로 스킬(/start·/commit·/pr·/review 등)은 플러그인으로 배포되므로 이 스킬은 "프로젝트마다 달라지는 파일 + 정리"를 담당한다. TRIGGER when 사용자가 "/team-init" 호출 또는 "팀 표준 적용", "claude 셋업", "이 프로젝트에 표준 깔아줘", "claude 설정 정리"를 요청할 때. DO NOT TRIGGER 자동 실행 금지 — 파일을 생성/삭제하므로 반드시 사용자가 직접 호출할 때만.
 argument-hint: '(인자 없음 — 모든 값은 단계별로 감지·확인)'
 allowed-tools: Bash(git:*), Bash(which:*), Bash(node:*), Bash(cat:*), Bash(ls:*), Read, Write, Edit, Glob, Grep, AskUserQuestion
 ---
@@ -25,7 +25,7 @@ allowed-tools: Bash(git:*), Bash(which:*), Bash(node:*), Bash(cat:*), Bash(ls:*)
 
 - **이 스킬이 담당**: `CLAUDE.md`, `rules/`, `settings.json`, `project.config.md`, `hooks/`, `DOMAIN.md`(도메인 인덱스)와 `domain/_TEMPLATE.md`(도메인 파일 양식) — **프로젝트마다 달라지거나 프로젝트에서 실행되는 파일**.
   - 단, `domain/{domain}.md` **정의 본문은 프로젝트 고유 지식**이므로 생성/덮어쓰기/정리 대상에서 제외(항상 보존). 이 스킬은 인덱스와 양식만 제공.
-- **이 스킬이 담당하지 않음**: 워크플로 스킬(`/start`·`/commit`·`/mr`·`/review`·`/note`·`/tech-doc`·`/secure-review`·`/organize-imports`·`/e2e`) — 이들은 **플러그인(마켓플레이스)으로 배포**되어 전역에서 동작하므로 프로젝트에 복사하지 않습니다.
+- **이 스킬이 담당하지 않음**: 워크플로 스킬(`/start`·`/commit`·`/pr`·`/review`·`/note`·`/tech-doc`·`/secure-review`·`/organize-imports`·`/e2e`) — 이들은 **플러그인(마켓플레이스)으로 배포**되어 전역에서 동작하므로 프로젝트에 복사하지 않습니다.
   - 단, 플러그인 미도입 프로젝트라면 Stage 3 계획에서 "스킬도 함께 복사" 옵션을 제시합니다(전환기 폴백).
 
 ### 템플릿 원본 (TEMPLATE_ROOT) 해석
@@ -90,8 +90,8 @@ allowed-tools: Bash(git:*), Bash(which:*), Bash(node:*), Bash(cat:*), Bash(ls:*)
    > ⚠️ **팀 전제**: 프로젝트에서 스킬·커맨드를 제거하면 **플러그인 미설치 팀원은 그 프로젝트에서 해당 스킬/커맨드를 잃습니다.** 정리(삭제)는 **팀 전원이 플러그인을 쓰기로 합의된 경우에만** 안전합니다. 합의 여부가 불명확하면 Stage 3에서 사용자에게 확인합니다.
 
 3. **자동 도출 가능한 project.config 값** — 묻지 않고 환경에서 뽑습니다:
-   - `GITLAB_PROJECT_URL` / `GITLAB_HOST`: `git remote get-url origin`에서 파싱
-   - `GITLAB_USERNAME` / `DEFAULT_REVIEWER`: `git config user.*` 또는 `glab api user`(있으면)
+   - `GITHUB_REPO_URL` / `GITHUB_HOST`: `git remote get-url origin`에서 파싱 (github.com이면 `GITHUB_HOST`는 비워둠 — Enterprise일 때만 채움)
+   - `GITHUB_USERNAME` / `DEFAULT_REVIEWER`: `git config user.*` 또는 `gh api user --jq .login`(있으면)
    - `PROJECT_NAME`: 레포 디렉터리명
    - `BASE_BRANCH`: 현재 기본 브랜치 추정(`git symbolic-ref refs/remotes/origin/HEAD` 등)
 
@@ -201,7 +201,7 @@ Stage 1 결과를 바탕으로 **무엇을 깔지** 목록을 확정합니다.
 - 플러그인 미도입 프로젝트면 워크플로 스킬 사용 전제(플러그인 설치 또는 스킬 복사 여부)를 안내.
 - **정리한 경우** — 제거한 스킬·커맨드가 전역에서 호출되는지 최종 확인하고, "프로젝트에서 빠진 파일 목록(skills/commands 구분) + 이제 플러그인에서 제공됨"을 요약. 이 프로젝트를 받는 팀원은 **플러그인 설치가 필수**임을 명시.
 
-마지막으로 적용 요약과 다음 할 일(미정 config 값 채우기, `/mcp` 인증, `glab auth status`)을 출력합니다.
+마지막으로 적용 요약과 다음 할 일(미정 config 값 채우기, `/mcp` 인증, `gh auth status`)을 출력합니다.
 
 ---
 

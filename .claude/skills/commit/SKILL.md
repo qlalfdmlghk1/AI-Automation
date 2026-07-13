@@ -31,7 +31,7 @@ Jira: <JIRA_KEY>
 Ref: <Confluence URL> (선택)
 ```
 
-> `Closes`는 GitLab에서 MR 머지 시 이슈를 자동으로 닫는 키워드입니다.
+> `Closes`는 GitHub에서 PR 머지 시 이슈를 자동으로 닫는 키워드입니다.
 > 중간 커밋에 `Closes`를 사용하면 이슈가 조기에 닫힐 수 있으므로 반드시 구분합니다.
 
 ## Type 정의
@@ -84,13 +84,13 @@ bash .claude/skills/commit/scripts/get-issue-number.sh
 
 ### 4단계: Jira 키 추출
 
-이슈 번호를 기반으로 GitLab 이슈에서 Jira 키를 조회합니다:
+이슈 번호를 기반으로 GitHub 이슈에서 Jira 키를 조회합니다:
 
 ```bash
-glab issue view <이슈번호> --json description 2>/dev/null
+gh issue view <이슈번호> --json body 2>/dev/null
 ```
 
-조회 성공 시 description에서 `[A-Z][A-Z0-9]+-\d+` 패턴으로 Jira 키를 추출합니다.
+조회 성공 시 body에서 `[A-Z][A-Z0-9]+-\d+` 패턴으로 Jira 키를 추출합니다.
 조회 실패 시 사용자에게 Jira 키를 확인합니다. (예: `UX-123`)
 
 ### 5단계: Type 자동 추천

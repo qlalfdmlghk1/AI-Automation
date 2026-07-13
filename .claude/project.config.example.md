@@ -7,7 +7,7 @@
 - PROJECT_NAME:
 - PROJECT_DESCRIPTION:
 - PROJECT_STACK:
-- BASE_BRANCH: dev # 작업 분기 기준 브랜치 (/start Stage 4) — 보통 GitLab의 DEFAULT_TARGET_BRANCH와 동일 값으로 유지 (다르면 분기 base와 MR/리뷰 base가 어긋남)
+- BASE_BRANCH: dev # 작업 분기 기준 브랜치 (/start Stage 4) — 보통 GitHub의 DEFAULT_TARGET_BRANCH와 동일 값으로 유지 (다르면 분기 base와 PR/리뷰 base가 어긋남)
 
 ## Jira
 
@@ -16,15 +16,15 @@
 - JIRA_DEFAULT_ASSIGNEE_EMAIL:
 - JIRA_SITE_URL: https://incross-platform.atlassian.net
 - JIRA_LABELS: # 쉼표 구분, 각 라벨은 공백 불가(하이픈·언더스코어 사용). /start가 이슈 생성 시 적용. 라벨 트리거로 하위 업무를 자동 생성하는 Jira 자동화를 쓰면 그 라벨을 반드시 등록 (누락 시 하위 업무 수동 생성 필요)
-- JIRA_REVIEW_TRANSITION: # /mr 6단계에서 리뷰 후 전이할 목표 상태 이름 (예: 진행 중, In Review). 미설정 시 가능한 전이를 조회해 사용자에게 확인
+- JIRA_REVIEW_TRANSITION: # /pr 6단계에서 리뷰 후 전이할 목표 상태 이름 (예: 진행 중, In Review). 미설정 시 가능한 전이를 조회해 사용자에게 확인
 
-## GitLab
+## GitHub
 
-- GITLAB_PROJECT_URL:
-- GITLAB_HOST: # 사내 GitLab 호스트 (예: gitlab.example.com). glab auth login --hostname 에 사용
-- GITLAB_USERNAME:
+- GITHUB_REPO_URL: # 예: https://github.com/{owner}/{repo}
+- GITHUB_HOST: # GitHub Enterprise 호스트만 입력 (예: github.company.com). 일반 github.com이면 비워둠 — gh auth login --hostname 에 사용
+- GITHUB_USERNAME:
 - DEFAULT_REVIEWER:
-- DEFAULT_TARGET_BRANCH: dev # MR 대상·리뷰 비교 브랜치 (/mr·/review) — 보통 BASE_BRANCH와 동일 값으로 유지
+- DEFAULT_TARGET_BRANCH: dev # PR 대상·리뷰 비교 브랜치 (/pr·/review) — 보통 BASE_BRANCH와 동일 값으로 유지
 - STAGING_BRANCH: staging
 - PRODUCTION_BRANCH: product
 

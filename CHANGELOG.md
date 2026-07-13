@@ -15,6 +15,30 @@
 
 _다음 릴리스에 들어갈 변경을 여기에 누적합니다._
 
+## [2.0.0] - 2026-07-14
+
+> **⚠️ Breaking — 워크플로 플랫폼을 GitLab에서 GitHub로 완전 교체했습니다.** `glab` CLI·MR·GitLab Issue 기반 흐름이 전부 `gh` CLI·PR·GitHub Issue로 바뀌고, `/mr` 스킬이 **제거**되며 `/pr`로 대체됩니다. Jira·Confluence 연동은 그대로입니다.
+>
+> **업그레이드 시 필요한 조치**
+>
+> 1. `gh` CLI 설치 및 인증 — `gh auth status`로 확인 (`glab`은 더 이상 쓰지 않음)
+> 2. `/mr` → **`/pr`** 로 호출명 변경 (`/mr`은 더 이상 존재하지 않음)
+> 3. `project.config.md`의 `## GitLab` 섹션을 `## GitHub`로 교체 — `GITLAB_PROJECT_URL`→`GITHUB_REPO_URL`, `GITLAB_HOST`→`GITHUB_HOST`(Enterprise만, github.com이면 공란), `GITLAB_USERNAME`→`GITHUB_USERNAME`
+> 4. `settings.json` 갱신 — `Bash(glab:*)`→`Bash(gh:*)`, `Skill(mr)`→`Skill(pr)`, 훅 경로 `warn-changelog-on-mr.js`→`warn-changelog-on-pr.js`
+>
+> `DEFAULT_TARGET_BRANCH`·`BASE_BRANCH`·`STAGING_BRANCH`·`PRODUCTION_BRANCH`와 커밋 컨벤션(`Closes #N`/`Refs #N`, Type 체계)은 **변경 없음** — GitHub에서도 동일하게 동작합니다.
+
+### Changed
+
+- **⚠️ (Breaking) 워크플로 CLI: `glab` → `gh`.** 모든 스킬의 명령을 GitHub CLI 기준으로 교체. 플래그가 다른 지점을 정확히 반영 — PR 생성 `--target-branch`→`--base`, `--description`→`--body`, 이슈 조회 JSON 필드 `description`→`body`, 사용자명 필드 `.username`→`.login`, PR 대상 브랜치 `target_branch`→`baseRefName`
+- **⚠️ (Breaking) `/mr` 스킬 제거 → `/pr` 로 대체.** GitHub는 Merge Request가 아니라 Pull Request이므로 스킬명·용어·저장 경로(`docs/mr/`→`docs/pr/`)를 전부 PR 기준으로 통일
+- **⚠️ (Breaking) `project.config`의 `GitLab` 섹션 → `GitHub` 섹션.** 키 이름 변경(위 업그레이드 안내 참고)
+- 훅 `warn-changelog-on-mr.js` → `warn-changelog-on-pr.js` 로 이름 변경. 인터셉트 대상도 `glab mr create` → `gh pr create`
+- `.claude/README.md`: glab의 수동 설치+체크섬 검증 WSL 절차를 GitHub 공식 apt 저장소 등록 방식으로 간소화
+- `/review`·`/review-converge`·`/secure-review`: 리뷰 결과 등록을 `glab mr note` → `gh pr comment`로 교체 (fallback 로직은 유지)
+- `/start`: GitHub Issue 생성(`gh issue create --body`), Jira description에 append하는 링크 섹션도 GitHub 기준으로
+- `/commit`: Jira 키 추출을 `gh issue view N --json body`로 교체
+
 ## [1.2.0] - 2026-07-14
 
 > 첫 정식 릴리스(태그). 그동안 태그 없이 누적된 표준 하네스 전체를 하나로 묶고, 배포 방식을 **`.claude/` 폴더 복사 → Claude Code 플러그인**으로 전환했습니다.
@@ -100,7 +124,8 @@ _다음 릴리스에 들어갈 변경을 여기에 누적합니다._
 - orphan 템플릿 `skills/start/templates/{plan-ui,plan-slim,progress}.md` (인라인 SSOT로 대체)
 - `note` skill의 미존재 `_templates/` 의존 및 rule 파일의 미존재 형제 파일 참조
 
-[Unreleased]: https://github.com/qlalfdmlghk1/AI-Automation/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/qlalfdmlghk1/AI-Automation/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/qlalfdmlghk1/AI-Automation/compare/v1.2.0...v2.0.0
 [1.2.0]: https://github.com/qlalfdmlghk1/AI-Automation/releases/tag/v1.2.0
 
 <!--

@@ -19,22 +19,22 @@
 - 주요 스택: `{PROJECT_STACK}`
 - 기본 브랜치: `{BASE_BRANCH}` (예: `dev`)
 - Jira 프로젝트 키: `{JIRA_PROJECT_KEY}` (예: `UX`, `VC`)
-- GitLab 기본 reviewer: `{DEFAULT_REVIEWER}`
+- GitHub 기본 reviewer: `{DEFAULT_REVIEWER}`
 - Confluence 기술 문서 위치: `{CONFLUENCE_SPACE}` / `{TECH_DOC_PARENT_PAGE_ID}`
 
 ## 기본 작업 원칙
 
 - 의미 있는 변경은 Plan → Code → Review 순서로 진행합니다.
-- `/start`를 사용하면 plan.md 합의 후 Jira, GitLab Issue, branch, progress.md를 생성합니다.
+- `/start`를 사용하면 plan.md 합의 후 Jira, GitHub Issue, branch, progress.md를 생성합니다.
 - 개발 중 결정은 `progress.md` 또는 `/note`로 남깁니다.
-- **커밋·MR·리뷰·기록 요청은 반드시 해당 스킬로 처리합니다.** 사용자가 "커밋해줘"·"MR 올려줘"·"리뷰해줘"·"기록해줘"처럼 자연어로 말해도 — 슬래시 커맨드가 아니어도 — `git commit`·`glab mr create` 등을 **직접 실행하지 말고** `/commit`·`/mr`·`/review`(또는 `/review-converge`)·`/note` 스킬을 호출합니다. 스킬이 커밋 컨벤션·이슈 연결·리뷰 등록 등 팀 표준 절차를 보장하므로, 직접 처리하면 그 절차가 누락됩니다.
+- **커밋·PR·리뷰·기록 요청은 반드시 해당 스킬로 처리합니다.** 사용자가 "커밋해줘"·"PR 올려줘"·"리뷰해줘"·"기록해줘"처럼 자연어로 말해도 — 슬래시 커맨드가 아니어도 — `git commit`·`gh pr create` 등을 **직접 실행하지 말고** `/commit`·`/pr`·`/review`(또는 `/review-converge`)·`/note` 스킬을 호출합니다. 스킬이 커밋 컨벤션·이슈 연결·리뷰 등록 등 팀 표준 절차를 보장하므로, 직접 처리하면 그 절차가 누락됩니다.
 - 프로젝트별 예외는 `.claude/project.config.md`에 명시하고, skill 본문을 직접 고치기 전에 팀 표준 반영 여부를 검토합니다.
 
 ## 필수 사전 준비
 
 - Atlassian MCP: Jira/Confluence 자동화에 필요
 - Figma MCP: 디자인 분석이 필요한 UI 작업에 필요
-- `glab` CLI: GitLab Issue, MR 생성, MR note 등록에 필요
+- `gh` CLI: GitHub Issue, PR 생성, PR 코멘트 등록에 필요
 - Playwright MCP: `/e2e` 테스트 저작에 필요 (선택)
 - Node.js/npm: hooks와 type-check 실행에 필요
 

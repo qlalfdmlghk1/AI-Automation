@@ -7,7 +7,7 @@
 - 프로젝트명과 설명
 - 기본 브랜치
 - Jira 프로젝트 키와 이슈 타입
-- GitLab assignee/reviewer
+- GitHub assignee/reviewer
 - Confluence 발행 위치
 - API 가이드 문서 위치
 - 프로젝트 특수 hook

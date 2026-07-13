@@ -18,13 +18,13 @@
       "Bash(swift:*)",
       "Bash(swiftlint:*)",
       "Bash(swiftformat:*)",
-      "Bash(glab:*)",
+      "Bash(gh:*)",
       "Skill(commit)",
       "Skill(commit *)",
       "Skill(note)",
       "Skill(note *)",
-      "Skill(mr)",
-      "Skill(mr *)",
+      "Skill(pr)",
+      "Skill(pr *)",
       "Skill(start)",
       "Skill(start *)",
       "Skill(plan-review)",
@@ -66,7 +66,7 @@
           },
           {
             "type": "command",
-            "command": "node .claude/hooks/warn-changelog-on-mr.js"
+            "command": "node .claude/hooks/warn-changelog-on-pr.js"
           }
         ]
       },

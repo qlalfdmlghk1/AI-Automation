@@ -3,7 +3,7 @@
 UX플랫폼개발팀의 **AI 코딩 도구 모노레포**입니다.
 팀에서 실제로 운영 중인 Claude Code / Codex 설정(스킬·룰·훅·세팅)을 한곳에 모아 **팀 표준으로 공유**하기 위한 저장소입니다.
 
-각 팀원은 이 저장소를 **Claude Code 플러그인**으로 설치해 동일한 워크플로우(커밋·MR·리뷰·문서화 등)를 그대로 사용할 수 있습니다.
+각 팀원은 이 저장소를 **Claude Code 플러그인**으로 설치해 동일한 워크플로우(커밋·PR·리뷰·문서화 등)를 그대로 사용할 수 있습니다.
 
 ---
 
@@ -60,14 +60,14 @@ claude plugin install ux-team-standard@ux-ai-automation
 /team-init
 ```
 
-- **플러그인**이 워크플로 스킬(`/start`·`/commit`·`/mr`·`/review` 등)을 **전역**으로 제공합니다 — 프로젝트에 `skills/`를 복사하지 않습니다.
+- **플러그인**이 워크플로 스킬(`/start`·`/commit`·`/pr`·`/review` 등)을 **전역**으로 제공합니다 — 프로젝트에 `skills/`를 복사하지 않습니다.
 - **`/team-init`**이 프로젝트마다 달라지는 파일(`CLAUDE.md`·`rules/`·`settings.json`·`hooks/`·`project.config.md`)을 배치하고, 스택을 감지해 알맞은 rule을 골라 줍니다.
 
 설치 후 체크리스트:
 
-> - `project.config.md`에 프로젝트 값(Jira 키·GitLab·Confluence·기본 브랜치·reviewer 등) 채우기
+> - `project.config.md`에 프로젝트 값(Jira 키·GitHub·Confluence·기본 브랜치·reviewer 등) 채우기
 > - `/mcp`에서 `atlassian`·`figma` MCP 서버 1회 인증
-> - `glab auth status`로 GitLab CLI 인증 확인
+> - `gh auth status`로 GitHub CLI 인증 확인
 >
 > 자세한 항목별 안내는 [.claude/README.md](.claude/README.md) 참고.
 
@@ -93,7 +93,7 @@ claude plugin install ux-team-standard@ux-ai-automation
 | 담당자 | 김두리, 최원서 |
 | 리뷰어 | 여인수         |
 
-설정 추가/변경 제안은 담당자에게 MR 또는 이슈로 공유해 주세요.
+설정 추가/변경 제안은 담당자에게 PR 또는 이슈로 공유해 주세요.
 
 ---
 

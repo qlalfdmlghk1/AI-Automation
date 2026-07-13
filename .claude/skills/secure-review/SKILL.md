@@ -1,6 +1,6 @@
 ---
 name: secure-review
-description: JavaScript Secure Coding 보안 전담 리뷰 (스탠드얼론) → glab mr note 등록. TRIGGER when 사용자가 /secure-review 호출 시. `/review`에 보안 페르소나가 포함되므로 통상 `/review`로 충분하지만, 보안만 빠르게 재검토하거나 npm audit 결과를 자세히 보고 싶을 때 사용. 격리된 forked subagent에서 실행되어 메인 컨텍스트를 오염시키지 않음.
+description: JavaScript Secure Coding 보안 전담 리뷰 (스탠드얼론) → gh pr comment 등록. TRIGGER when 사용자가 /secure-review 호출 시. `/review`에 보안 페르소나가 포함되므로 통상 `/review`로 충분하지만, 보안만 빠르게 재검토하거나 npm audit 결과를 자세히 보고 싶을 때 사용. 격리된 forked subagent에서 실행되어 메인 컨텍스트를 오염시키지 않음.
 # context: fork 는 비교적 최신 Claude Code 기능 — 미지원 버전에선 무시되어 메인 컨텍스트에서 실행됨 (동작은 동일, 격리만 없음)
 context: fork
 ---
@@ -18,7 +18,7 @@ FE_SECURE_CODING_REVIEWER v1.1
 - Branch: !`git branch --show-current`
 - Status: !`git status`
 - npm audit: !`npm audit --json 2>/dev/null || npm audit 2>/dev/null`
-- glab_available: !`which glab`
+- gh_available: !`which gh`
 - 스택 감지: !`cat package.json 2>/dev/null || echo "no package.json"` — 출력이 있으면 dependencies/devDependencies에서 프레임워크(vue/react/svelte/@angular/@nestjs/core)·상태관리(pinia/vuex/redux/zustand/mobx)·빌드(vite/webpack/next/nuxt)·언어(typescript) 추출. `@nestjs/core`면 백엔드(NestJS)로 판정
 - 네이티브·서버 감지: 셸 명령 대신 **Glob 도구**로 repo 루트에서 확인 — `build.gradle`·`build.gradle.kts`·`settings.gradle`·`settings.gradle.kts`·`libs.versions.toml`이면 Android, `*.xcodeproj`·`*.xcworkspace`·`Package.swift`·`Podfile`이면 iOS, `nest-cli.json`/`@nestjs/core`면 NestJS. (중괄호 그룹 셸 명령은 권한 검사기에 오인 차단된 사례가 있어 사용 금지.) 감지 실패 시 중단하지 말고 "미감지"로 두고 FE 기준으로 계속 진행. 감지되면 아래 "스택별 보안 체크리스트" 적용(FE 전용 항목은 해당 없음)
 - 컨벤션·보안 정책: `.claude/CLAUDE.md` + `.claude/rules/*.md` 존재 시 Read — 인증/토큰 저장 정책이 명시돼 있으면 **그 정책을 1순위**로 적용
@@ -162,20 +162,20 @@ FE_SECURE_CODING_REVIEWER v1.1
 
 ## 결과 등록
 
-리뷰 완료 후 glab_available 여부에 따라:
+리뷰 완료 후 gh_available 여부에 따라:
 
-**glab 설치된 경우:**
+**gh 설치된 경우:**
 
 ```bash
-glab mr note <MR번호> --message "## 시큐어 코드 리뷰 결과
+gh pr comment <PR번호> --body "## 시큐어 코드 리뷰 결과
 [리뷰 내용]"
 ```
 
-MR 번호는 `glab mr list --source-branch <현재브랜치>`로 자동 조회합니다.
-조회 실패 시 사용자에게 MR 번호를 확인합니다.
+PR 번호는 `gh pr list --head <현재브랜치>`로 자동 조회합니다.
+조회 실패 시 사용자에게 PR 번호를 확인합니다.
 
-> ⚠️ **GitLab 넘버링 주의**: 코멘트 본문의 항목 번호에 `#`을 붙이지 마세요(`#1`·`#2`). GitLab이 `#숫자`를 이슈 링크로 자동 변환합니다. `SEC-1`·`1.`처럼 쓰고 `#`는 실제 이슈/MR 참조에만 사용합니다.
+> ⚠️ **GitHub 넘버링 주의**: 코멘트 본문의 항목 번호에 `#`을 붙이지 마세요(`#1`·`#2`). GitHub이 `#숫자`를 이슈/PR 링크로 자동 변환합니다. `SEC-1`·`1.`처럼 쓰고 `#`는 실제 이슈/PR 참조에만 사용합니다.
 
-**glab 미설치된 경우:**
+**gh 미설치된 경우:**
 
-리뷰 결과를 세션에 출력하고, GitLab MR에 수동으로 코멘트를 등록하도록 안내합니다.
+리뷰 결과를 세션에 출력하고, GitHub PR에 수동으로 코멘트를 등록하도록 안내합니다.

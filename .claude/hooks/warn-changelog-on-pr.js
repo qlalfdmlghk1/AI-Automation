@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 /**
- * PreToolUse hook: `glab mr create` 직전에 CHANGELOG `[Unreleased]` 갱신 여부 점검 (경고 전용, 차단 X).
+ * PreToolUse hook: `gh pr create` 직전에 CHANGELOG `[Unreleased]` 갱신 여부 점검 (경고 전용, 차단 X).
  *
- * Keep a Changelog 를 운영하는 저장소에서 MR 만들 때 CHANGELOG 갱신을 깜빡하는 것을 막는 리마인더.
+ * Keep a Changelog 를 운영하는 저장소에서 PR 만들 때 CHANGELOG 갱신을 깜빡하는 것을 막는 리마인더.
  *
  * ⚠️ self-adapting: 루트에 `CHANGELOG.md` 가 없는 프로젝트(대부분의 앱)에서는 즉시 통과한다.
- * 그래서 `.claude` 배포물을 복사해 쓰는 다른 프로젝트에는 영향이 없다.
+ * 그래서 표준 배포물을 적용한 다른 프로젝트에는 영향이 없다.
  * (`check-commit-typecheck.js` 가 type-check 스크립트 없으면 통과하는 것과 동일한 원칙.)
  *
  * stdin PreToolUse JSON:
- *   { "tool_name": "Bash", "tool_input": { "command": "glab mr create ..." }, "cwd": "..." }
+ *   { "tool_name": "Bash", "tool_input": { "command": "gh pr create ..." }, "cwd": "..." }
  *
  * 종료 코드: 항상 0 (경고 전용 — 흐름을 막지 않음).
  */
@@ -26,9 +26,9 @@ try {
 
 const command = input?.tool_input?.command ?? ''
 
-// `glab mr create` 매칭 (앞에 공백/세미콜론/&&/|/( 허용)
-const isMrCreate = /(?:^|[\s;&|(])glab\s+mr\s+create(?:\s|$)/.test(command)
-if (!isMrCreate) process.exit(0)
+// `gh pr create` 매칭 (앞에 공백/세미콜론/&&/|/( 허용)
+const isPrCreate = /(?:^|[\s;&|(])gh\s+pr\s+create(?:\s|$)/.test(command)
+if (!isPrCreate) process.exit(0)
 
 const cwd = input?.cwd ?? process.cwd()
 

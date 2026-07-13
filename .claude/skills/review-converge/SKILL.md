@@ -1,8 +1,8 @@
 ---
 name: review-converge
-description: 코드 리뷰 자가수렴 루프 — /review 리뷰 → 자동 반영(제한된 범위) → 객관 검증(lint/type/test/build) → 재리뷰를 Blocker 0건·검증 통과·변경 없음이 될 때까지 반복. 최대 회차/중단 조건 내에서 AI가 먼저 수렴시키고 사람은 마지막에 확인. TRIGGER when 사용자가 /review-converge 호출하거나, /mr 워크플로우에서 리뷰 수렴을 선택할 때.
+description: 코드 리뷰 자가수렴 루프 — /review 리뷰 → 자동 반영(제한된 범위) → 객관 검증(lint/type/test/build) → 재리뷰를 Blocker 0건·검증 통과·변경 없음이 될 때까지 반복. 최대 회차/중단 조건 내에서 AI가 먼저 수렴시키고 사람은 마지막에 확인. TRIGGER when 사용자가 /review-converge 호출하거나, /pr 워크플로우에서 리뷰 수렴을 선택할 때.
 argument-hint: '[리뷰 범위] (예: origin/dev...HEAD, 없으면 /review 우선순위 따름)'
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(glab:*), Bash(npm:*), Bash(npx eslint:*), Bash(npx vue-tsc:*), Bash(npx playwright:*), Bash(which:*), AskUserQuestion, Skill(review), Skill(review *), Skill(commit), Skill(commit *)
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(gh:*), Bash(npm:*), Bash(npx eslint:*), Bash(npx vue-tsc:*), Bash(npx playwright:*), Bash(which:*), AskUserQuestion, Skill(review), Skill(review *), Skill(commit), Skill(commit *)
 ---
 
 당신은 **코드 리뷰 자가수렴 코디네이터**입니다.
@@ -92,7 +92,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(glab:*), Bash(np
 ### Stage 0: 준비
 
 1. **리뷰 범위 확정** — `$ARGUMENTS`가 있으면 그 범위, 없으면 `/review`의 우선순위 규칙을 따릅니다 (working/staged → branch diff vs base).
-   - `/mr`에서 호출된 경우 항상 `origin/<대상브랜치>...HEAD`로 명시 패스됩니다.
+   - `/pr`에서 호출된 경우 항상 `origin/<대상브랜치>...HEAD`로 명시 패스됩니다.
 2. **검증 명령 해석** — 위 "검증 명령" 규칙으로 lint/type/test/build 명령과 최대 회차를 확정합니다. config 우선, 없으면 scripts 감지, 그래도 없으면 "건너뜀".
 3. **시작 안내** 출력 (아래 "사용자 안내").
 
@@ -104,7 +104,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(glab:*), Bash(np
 
 - `/review`를 확정된 범위로 **`--no-note`(internal 모드)** 로 호출합니다 (4 페르소나 병렬, Severity 매핑 적용).
   - 예: `/review origin/<대상브랜치>...HEAD --no-note`
-  - **매 라운드 노트가 MR에 쌓이지 않도록** internal 모드를 씁니다. `/review`는 합성 결과를 반환만 하고 MR 노트를 등록하지 않습니다. 최종 수렴 결과 노트는 Stage 2에서 한 번만 등록합니다.
+  - **매 라운드 코멘트가 PR에 쌓이지 않도록** internal 모드를 씁니다. `/review`는 합성 결과를 반환만 하고 PR 코멘트를 등록하지 않습니다. 최종 수렴 결과 코멘트는 Stage 2에서 한 번만 등록합니다.
 - 결과에서 **Blocker / Non-blocker**를 추출하고, 각 항목을 위 "자동 반영 대상/금지 대상" 기준으로 **분류**합니다.
 
 #### 1-B. 자동 반영 (코드 수정만 — 커밋 안 함)
@@ -145,12 +145,12 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(glab:*), Bash(np
 수렴 성공/중단 여부와 무관하게 산출물을 정리하고 보고합니다.
 
 1. **산출물 작성** — 아래 "산출물 형식".
-2. **MR note 등록 (최종 1회)** — 매 라운드 `/review`는 internal 모드라 노트를 등록하지 않았으므로, 여기서 **수렴 결과 노트 1개**만 MR에 등록합니다. 노트에는 라운드별 리뷰 요약 + 자동 반영 내역 + 검증 결과 + 남긴 항목 + 수렴/중단 상태를 묶습니다. glab 미설치 시 본문을 출력하고 수동 등록 안내.
+2. **PR 코멘트 등록 (최종 1회)** — 매 라운드 `/review`는 internal 모드라 코멘트를 등록하지 않았으므로, 여기서 **수렴 결과 코멘트 1개**만 PR에 등록합니다. 코멘트에는 라운드별 리뷰 요약 + 자동 반영 내역 + 검증 결과 + 남긴 항목 + 수렴/중단 상태를 묶습니다. gh 미설치 시 본문을 출력하고 수동 등록 안내.
 
    ```bash
-   MR_NUM=$(glab mr list --source-branch "$(git branch --show-current)" --output json | jq -r '.[0].iid')
-   glab mr note "$MR_NUM" --message "$(cat <<'EOF'
-   [산출물의 "MR note 등록 문안" 본문]
+   PR_NUM=$(gh pr list --head "$(git branch --show-current)" --json number | jq -r '.[0].number')
+   gh pr comment "$PR_NUM" --body "$(cat <<'EOF'
+   [산출물의 "PR 코멘트 등록 문안" 본문]
    EOF
    )"
    ```
@@ -202,9 +202,9 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(glab:*), Bash(np
 - (중단 시) 중단 사유: {최대 회차 / 동일 실패 반복 / 정책 판단 필요 / 변경 범위 과대 / 위험 변경 / 환경 깨짐}
 - (중단 시) **사람이 봐야 할 것**: {구체 항목}
 
-## MR note 등록 문안
+## PR 코멘트 등록 문안
 
-> (아래 본문을 마지막 수렴 결과 노트로 MR에 등록)
+> (아래 본문을 마지막 수렴 결과 코멘트로 PR에 등록)
 
 ## progress.md 기록 제안
 
