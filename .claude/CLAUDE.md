@@ -44,6 +44,8 @@
 
 - Vue3 / TypeScript: `.claude/rules/fe/vue3-typescript.md`
 - Vue2 / JavaScript: `.claude/rules/fe/vue2-javascript.md`
+- React / Next.js (App Router): `.claude/rules/fe/react-nextjs.md`
+- React / Vite (SPA): `.claude/rules/fe/react-vite.md`
 - Node / AngularJS 등 레거시: `.claude/rules/fe/angularjs-legacy.md`
 - 디자인 시스템 / 퍼블리싱: `.claude/rules/fe/publishing-design-system.md`
 - Android (Kotlin/Java): `.claude/rules/native/android-convention.md`

@@ -53,7 +53,8 @@ allowed-tools: Bash(git:*), Bash(which:*), Bash(node:*), Bash(cat:*), Bash(ls:*)
    - Android: Glob `build.gradle`, `build.gradle.kts`, `settings.gradle`, `settings.gradle.kts`, `libs.versions.toml`
    - iOS: Glob `*.xcodeproj`, `*.xcworkspace`, `Package.swift`, `Podfile`
    - NestJS: Glob `nest-cli.json` + package.json이 있으면 Grep으로 `@nestjs/core` 포함 여부 확인
-   - FE(Vue/Angular): Read `package.json` → dependencies/devDependencies 판독
+   - FE(Vue/React/Angular): Read `package.json` → dependencies/devDependencies 판독
+     - React 계열은 **`next` 유무로 갈립니다** — `react` + `next` → Next.js, `react`만(+`vite`) → Vite SPA. `next`가 있으면 Next.js가 우선입니다.
 
    **미감지 폴백 (강제)** — 개별 감지 단계가 실패해도(도구 오류·권한 차단 등) **스킬을 중단하지 않습니다.** 해당 신호를 "미감지"로 기록하고 다음 신호로 계속 진행합니다. 모든 신호가 미감지면 "비-앱"으로 두지 말고 `AskUserQuestion` 카드로 스택을 사용자에게 확인합니다.
 
@@ -65,6 +66,8 @@ allowed-tools: Bash(git:*), Bash(which:*), Bash(node:*), Bash(cat:*), Bash(ls:*)
    | `vue` ^3 + `typescript` | Vue3 / TypeScript | `rules/fe/vue3-typescript.md` |
    | `vue` ^3 (TS 없음) | Vue3 / JavaScript | `rules/fe/vue3-typescript.md` (+ JS 주의 메모) |
    | `vue` ^2 | Vue2 / JavaScript | `rules/fe/vue2-javascript.md` |
+   | `react` + `next` | React / Next.js (App Router) | `rules/fe/react-nextjs.md` |
+   | `react` (next 없음, 보통 `vite`) | React / Vite SPA | `rules/fe/react-vite.md` |
    | `angular` (AngularJS/legacy) | 레거시 | `rules/fe/angularjs-legacy.md` |
    | 디자인 시스템/퍼블리싱 신호 | 퍼블리싱 | `rules/fe/publishing-design-system.md` |
    | 위 신호 모두 없음 (문서/스크립트 레포) | 비-앱 | FE rule 생략, team.md만 |

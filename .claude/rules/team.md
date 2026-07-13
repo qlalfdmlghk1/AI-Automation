@@ -1,4 +1,4 @@
-# Team Claude Standard v2.0.0
+# Team Claude Standard v2.1.0
 
 ## 1. 핵심 작업 원칙
 

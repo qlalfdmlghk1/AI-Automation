@@ -15,6 +15,17 @@
 
 _다음 릴리스에 들어갈 변경을 여기에 누적합니다._
 
+## [2.1.0] - 2026-07-14
+
+### Added
+
+- `rules/fe/react-nextjs.md` — React / Next.js(App Router) 컨벤션. FSD + Zustand + TanStack Query + Tailwind(기본)·CSS Modules(SCSS). Server/Client Component 경계 [MUST], 데이터 페칭 기준표, TanStack Query SSR hydration, Server Actions 사용 기준, App Router 파일 컨벤션 포함
+  - Next.js `app/`(라우팅)과 FSD `app` 레이어(앱 초기화)의 **이름 충돌 해소 규칙 [MUST]** — 루트 `app/`은 라우팅 진입점 전용, FSD 레이어는 `src/` 하위
+- `rules/fe/react-vite.md` — React / Vite SPA 컨벤션. `vue3-typescript.md`와 1:1 대응되도록 이식 (Pinia→Zustand, Vue Query→TanStack Query, composable→커스텀 훅, SFC 블록 순서→컴포넌트 파일 내 선언 순서). React 고유로 훅 규칙·`useEffect` 남용 금지·리렌더 최적화(메모이제이션을 쓰지 말아야 할 때)·리스트 key index 금지 추가
+- `/team-init` 스택 감지에 React 추가 — `react` + `next` → Next.js, `next` 없으면(보통 `vite`) Vite SPA로 판정
+
+> 두 문서 모두 보안 판정은 `security-compliance.md`를 정본으로 참조하며, 토큰 경로·lint 명령 등 프로젝트 고유값은 하드코딩하지 않고 `project.config.md` 참조로 남겼습니다.
+
 ## [2.0.0] - 2026-07-14
 
 > **⚠️ Breaking — 워크플로 플랫폼을 GitLab에서 GitHub로 완전 교체했습니다.** `glab` CLI·MR·GitLab Issue 기반 흐름이 전부 `gh` CLI·PR·GitHub Issue로 바뀌고, `/mr` 스킬이 **제거**되며 `/pr`로 대체됩니다. Jira·Confluence 연동은 그대로입니다.
@@ -124,7 +135,8 @@ _다음 릴리스에 들어갈 변경을 여기에 누적합니다._
 - orphan 템플릿 `skills/start/templates/{plan-ui,plan-slim,progress}.md` (인라인 SSOT로 대체)
 - `note` skill의 미존재 `_templates/` 의존 및 rule 파일의 미존재 형제 파일 참조
 
-[Unreleased]: https://github.com/qlalfdmlghk1/AI-Automation/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/qlalfdmlghk1/AI-Automation/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/qlalfdmlghk1/AI-Automation/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/qlalfdmlghk1/AI-Automation/compare/v1.2.0...v2.0.0
 [1.2.0]: https://github.com/qlalfdmlghk1/AI-Automation/releases/tag/v1.2.0
 

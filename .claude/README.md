@@ -119,6 +119,8 @@ gh auth status
 
 - 신규 Vue3 / TypeScript: `rules/fe/vue3-typescript.md`
 - Vue2 / JavaScript 레거시: `rules/fe/vue2-javascript.md`
+- React / Next.js (App Router): `rules/fe/react-nextjs.md`
+- React / Vite (SPA): `rules/fe/react-vite.md`
 - Node / AngularJS 등 특수 레거시: `rules/fe/angularjs-legacy.md`
 - 디자인 시스템 / 퍼블리싱: `rules/fe/publishing-design-system.md`
 
